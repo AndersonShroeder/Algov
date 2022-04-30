@@ -28,8 +28,8 @@ class MainMenu(Menu):
     def display_menu(self):
         self.run_display = True
         while self.run_display:
-            self.check_input()
             self.game.check_events() #set flags to allow to move cursor
+            self.check_input()
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text("Main Menu", 20, self.game.DISPLAY_W/2, self.game.DISPLAY_H / 2 - 20) #Main menu title is at the center slighty above options
             self.game.draw_text("Sorting Algorithms", 20, self.sortingx, self.sortingy)
@@ -40,25 +40,24 @@ class MainMenu(Menu):
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
-            print("bruh")
             #if down key is pressed, curosr is moved to next option and state is adjusted accordingly
             if self.state == 'Sort':
                 self.cursor_rect.midtop = (self.searchx + self.offset, self.searchy)
                 self.state = 'Search'
-            if self.state == 'Search':
+            elif self.state == 'Search':
                 self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
                 self.state = 'Credits'
-            if self.state == 'Credits':
+            elif self.state == 'Credits':
                 self.cursor_rect.midtop = (self.sortingx + self.offset, self.sortingy)
                 self.state = 'Sort'
         elif self.game.UP_KEY:
             if self.state == 'Sort':
                 self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
                 self.state = 'Credits'
-            if self.state == 'Search':
+            elif self.state == 'Search':
                 self.cursor_rect.midtop = (self.sortingx + self.offset, self.sortingy)
                 self.state = 'Sort'
-            if self.state == 'Credits':
+            elif self.state == 'Credits':
                 self.cursor_rect.midtop = (self.searchx + self.offset, self.searchy)
                 self.state = 'Search'
 
