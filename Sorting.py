@@ -1,5 +1,4 @@
 
-from ctypes import pointer
 import pygame
 from random import randint
 
@@ -64,6 +63,9 @@ class List():
         self.lst = []
         self.count = 0
 
+    def swap(self, index1, index2):
+        self.lst[index1], self.lst[index2] = self.lst[index2], self.lst[index1]
+
     #generate list function
     def generate_list(self):   
         jump = self.rng//self.elements
@@ -74,7 +76,7 @@ class List():
             draw(self.win, self.lst)
 
             #Delay for visibility
-            pygame.time.delay(20)
+            pygame.time.delay(2)
 
     #Randomize list
     def randomize_list(self):
@@ -82,11 +84,13 @@ class List():
 
             rnd = randint(0, len(self.lst)-1)
             self.lst[i].change_x(rnd), self.lst[rnd].change_x(i)
-            self.lst[i], self.lst[rnd] = self.lst[rnd], self.lst[i]
+            self.swap(i, rnd)
             draw(self.win, self.lst)
 
             #Delay for visibility
-            pygame.time.delay(20)
+            pygame.time.delay(2)
+
+
 
     def bubble_sort(self):
         x = len(self.lst)
@@ -97,85 +101,131 @@ class List():
                 self.lst[j].red()
                 if self.lst[j].value > self.lst[j + 1].value:
                     self.lst[j].change_x(j + 1), self.lst[j + 1].change_x(j)
-                    self.lst[j], self.lst[j + 1] = self.lst[j+ 1], self.lst[j]
+                    self.swap(j, j+1)
                 draw(self.win, self.lst)
                 pygame.time.delay(2)
                 self.lst[j + 1].normal()
                 self.lst[j].normal()
-
         self.finished()
 
 
 
+    #Calls the merge sort function on self.lst
+    def merge_sort(self):
+        self.lst = self.merge(self.lst)
+        self.finished()
 
-    def merge_sort(self, array):
+
+
+    def merge(self, array):
+        #Recursive call = divide
         if len(array) <= 1:
             return array
         midpoint = len(array)//2
         self.count += 1
-        lft, rght = self.merge_sort(array[:midpoint]), self.merge_sort(array[midpoint:])
-        return self.merge(lft, rght)
+        left, right = self.merge(array[:midpoint]), self.merge(array[midpoint:])
 
-    def merge(self, left, right):
+
+        #Merge
         result = []
         left_pointer = right_ponter = 0
 
         min = left[0].index
-        k = 0
-
-
-        print(left, right)
         while left_pointer < len(left) and right_ponter < len(right):
 
+            #Check each node at both side = make red
+            left[left_pointer].red(), right[right_ponter].red()
+            draw(self.win, self.lst) 
+            pygame.time.delay(5)
+
+            #Update Min if less than left pointer value index
+            if left[left_pointer].index < min:
+                min = left[left_pointer].index
+
+            #Update Min if less than right pointer value index
+            if right[right_ponter].index < min:
+                min = right[right_ponter].index
+
             if left[left_pointer].value < right[right_ponter].value:
-
-                if left[left_pointer].index < min:
-                    min = left[left_pointer].index
                 result.append(left[left_pointer])
-
                 left_pointer += 1
 
-
-
             else:
-
-                if right[right_ponter].index < min:
-                    min = right[right_ponter].index
-
                 result.append(right[right_ponter])
                 right_ponter += 1
 
-
-
+            #Make node normal
+            left[left_pointer - 1].normal(), right[right_ponter - 1].normal()
+            draw(self.win, self.lst)
 
 
         while left_pointer < len(left):
+            #Check
+            left[left_pointer].red()
+            draw(self.win, self.lst) 
+
             if left[left_pointer].index < min:
                 min = left[left_pointer].index
+
             result.append(left[left_pointer])
             left_pointer += 1
 
-
-
+            #Normal
+            left[left_pointer - 1].normal()
+ 
 
         while right_ponter < len(right):
+            right[right_ponter].red()
+            draw(self.win, self.lst) 
+
             if right[right_ponter].index < min:
                 min = right[right_ponter].index
 
             result.append(right[right_ponter])
             right_ponter += 1
 
-        print(result)
+            right[right_ponter - 1].normal()
+       
+        
+        #once done comparing and have final list draw final list
+        #Swap position in grid
+        #keep track of min index - for as man nodes in result increment the min index and assign new index for each node
+        max = min
+        for index, node in enumerate(result):
+            node_index = node.index
+            swap_index = min + index
+            node.change_x(min + index)
+            self.swap(node_index, swap_index)
+            max += index
+            
+        draw(self.win, self.lst)
+
+        #draw sequence of sorted subarray
+        for node in result:
+            node.red()
+            draw(self.win, self.lst)
+            pygame.time.delay(5)
+            node.normal()
+        
+
         return result
 
-    def finished(self):
 
+
+    def insertion_sort(self):
+        pass
+
+
+    def finished(self):
         for i in self.lst:
             i.red()
             
             draw(self.win, self.lst)
-            pygame.time.delay(20)
+            pygame.time.delay(2)
             i.searching()
+
+
+
 
 
 def draw(win, lst):
@@ -201,7 +251,17 @@ def main(win, elements, rng, width):
             if pygame.mouse.get_pressed() == (1,0,0):
                 lst.generate_list()
                 lst.randomize_list()
-                lst.merge_sort(lst.lst)
+                lst.merge_sort()
+                
+
+            if pygame.mouse.get_pressed() == (0,0,1):
+                lst.generate_list()
+                lst.randomize_list()
+                lst.bubble_sort()
+
+            if event.type == pygame.KEYDOWN:
+                if str(pygame.key.name(event.key)).upper() == "BACKSPACE":
+                    lst.lst = []
             
             if event.type == pygame.QUIT:
                 run = False
