@@ -75,64 +75,7 @@ class MainMenu(Menu):
             self.run_display = False
 
 class SortingMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = 'Bubble'
-        self.bubx, self.buby = 100, 50 #menu buttons across top sep x pixels
-        self.insx, self.insy = 250, 50
-        self.mergex, self.mergey = 400, 50
-        self.cursor_rect.midtop = (self.bubx, self.buby + 20)
-
-    def move_cursor(self):
-        if self.game.DOWN_KEY:
-            #if down key is pressed, curosr is moved to next option and state is adjusted accordingly
-            if self.state == 'Bubble':
-                self.cursor_rect.midtop = (self.mergex, self.mergey + 20)
-                self.state = 'Merge'
-            elif self.state == 'Merge':
-                self.cursor_rect.midtop = (self.insx, self.insy + 20)
-                self.state = 'Insert'
-            elif self.state == 'Insert':
-                self.cursor_rect.midtop = (self.bubx, self.buby + 20)
-                self.state = 'Bubble'
-        elif self.game.UP_KEY:
-            if self.state == 'Bubble':
-                self.cursor_rect.midtop = (self.insx, self.insy + 20)
-                self.state = 'Insert'
-            elif self.state == 'Insert':
-                self.cursor_rect.midtop = (self.mergex, self.mergey + 20)
-                self.state = 'Merge'
-            elif self.state == 'Merge':
-                self.cursor_rect.midtop = (self.bubx, self.buby + 20)
-                self.state = 'Bubble'
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill(self.game.BLACK)
-            self.game.draw_text("Bubble Sort", 20, self.bubx, self.buby)
-            self.game.draw_text("Insertion Sort", 20, self.insx, self.insy)
-            self.game.draw_text("Merge Sort", 20, self.mergex, self.mergey)
-            self.draw_cursor()
-            self.blit_screen()
  
-    def check_input(self):
-        self.move_cursor()
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.main_menu
-            self.run_display = False
-        elif self.game.START_KEY:
-            #initiate search
-            if self.state == 'Bubble':
-                pass
-            elif self.state == 'Insert':
-                pass
-            elif self.state == 'Merge':
-                pass
-            self.run_display = False
-
 class SearchMenu(Menu):
     pass
 class OptionsMenu(Menu):
