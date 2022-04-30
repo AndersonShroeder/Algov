@@ -117,7 +117,7 @@ class SortingMenu(Menu):
             self.game.draw_text("Merge Sort", 20, self.mergex, self.mergey)
             self.draw_cursor()
             self.blit_screen()
-
+ 
     def check_input(self):
         self.move_cursor()
         if self.game.BACK_KEY:
