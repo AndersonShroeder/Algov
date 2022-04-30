@@ -1,5 +1,7 @@
 import pygame
 from Menu import MainMenu
+import pygame
+from Sorting import Node, List
 
 
 class Game():
@@ -7,12 +9,14 @@ class Game():
         pygame.init()
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 720, 480
+        self.DISPLAY_W, self.DISPLAY_H = 1000, 800
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
         self.font_name = pygame.font.get_default_font()
         self.WHITE, self.BLACK = (255, 255,255), (0, 0, 0)
-        self.curr_menu = MainMenu(self)
+        self.main_menu = MainMenu(self)
+        self.curr_menu = self.main_menu
+        self.lst = List(self.window, 100, 700, 1000)
 
 
     def program_loop(self):
@@ -22,7 +26,6 @@ class Game():
                 self.playing = False
             #reset screen to update menu
             self.display.fill(self.BLACK)
-            self.draw_text("Thanks for Playing", 20, 360, 240)
             self.window.blit(self.display, (0,0))
             pygame.display.update()
             self.reset_keys()
@@ -61,3 +64,6 @@ g = Game()
 while g.running:
     g.curr_menu.display_menu()
     g.program_loop()
+
+
+#When selecting search or sort - grid is built and then the options are drawn.

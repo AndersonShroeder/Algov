@@ -3,12 +3,12 @@ import pygame
 from random import randint
 
 
-WIDTH = 1000
-HEIGHT = 1000
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Sorting Algo")
-display_surface = pygame.display.get_surface()
-display_surface.blit(pygame.transform.flip(display_surface, False, True), dest=(0, 0))
+# WIDTH = 1000
+# HEIGHT = 1000
+# WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+# pygame.display.set_caption("Sorting Algo")
+# display_surface = pygame.display.get_surface()
+# display_surface.blit(pygame.transform.flip(display_surface, False, True), dest=(0, 0))
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
@@ -237,11 +237,7 @@ class List():
             i.searching()
 
 
-
-
-
 def draw(win, lst):
-    win.fill(BLACK)
     for node in lst:
         node.draw(win)
     pygame.display.update()
@@ -249,45 +245,3 @@ def draw(win, lst):
     #exit loop in draw function = easiest
     exit_loop()
 
-
-def main(win, elements, rng, width):
-    run = True
-    clock = pygame.time.Clock()
-    lst = List(win, elements, rng, width)
-
-    while run:
-        draw(win, lst.lst)
-        clock.tick(FPS)
-        for event in pygame.event.get():
-
-            if pygame.mouse.get_pressed() == (1,0,0):
-                lst.lst = []
-                lst.generate_list()
-                lst.randomize_list()
-                lst.insertion_sort()
-                
-
-            if pygame.mouse.get_pressed() == (0,0,1):
-                lst.lst = []
-                lst.generate_list()
-                lst.randomize_list()
-                lst.bubble_sort()
-
-            if pygame.mouse.get_pressed() == (0,1,0):
-                lst.lst = []
-                lst.generate_list()
-                lst.randomize_list()
-                lst.merge_sort()
-
-            if event.type == pygame.KEYDOWN:
-                if str(pygame.key.name(event.key)).upper() == "BACKSPACE":
-                    lst.lst = []
-            
-            if event.type == pygame.QUIT:
-                run = False
-
-    
-    pygame.quit()
-
-main(WIN, 200, 1000, 1000)
-#Click start - Creates/draws sorted list - then randomizes the list visually - then sorts
