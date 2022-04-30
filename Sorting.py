@@ -64,7 +64,9 @@ class List():
         self.count = 0
 
     def swap(self, index1, index2):
+        self.lst[index1].change_x(index2), self.lst[index2].change_x(index1)
         self.lst[index1], self.lst[index2] = self.lst[index2], self.lst[index1]
+        
 
     #generate list function
     def generate_list(self):   
@@ -83,7 +85,7 @@ class List():
         for i in range(len(self.lst)):
 
             rnd = randint(0, len(self.lst)-1)
-            self.lst[i].change_x(rnd), self.lst[rnd].change_x(i)
+            
             self.swap(i, rnd)
             draw(self.win, self.lst)
 
@@ -100,10 +102,9 @@ class List():
             for j in range(0, x-i-1):
                 self.lst[j].red()
                 if self.lst[j].value > self.lst[j + 1].value:
-                    self.lst[j].change_x(j + 1), self.lst[j + 1].change_x(j)
                     self.swap(j, j+1)
                 draw(self.win, self.lst)
-                pygame.time.delay(2)
+                #pygame.time.delay()
                 self.lst[j + 1].normal()
                 self.lst[j].normal()
         self.finished()
@@ -194,7 +195,6 @@ class List():
         for index, node in enumerate(result):
             node_index = node.index
             swap_index = min + index
-            node.change_x(min + index)
             self.swap(node_index, swap_index)
             max += index
             
@@ -213,7 +213,19 @@ class List():
 
 
     def insertion_sort(self):
-        pass
+        #check node - if greater than node on left, swap positions until not greater than node on left
+        for i in range(1, len(self.lst)):
+            j = i
+            self.lst[j].red()
+            while self.lst[j -1].value > self.lst[j].value and j > 0:
+                self.swap(j, j-1)
+                #pygame.time.delay(1)
+                draw(self.win,self.lst)
+                j -= 1
+            self.lst[j].normal()
+        self.finished()
+
+
 
 
     def finished(self):
@@ -249,15 +261,23 @@ def main(win, elements, rng, width):
         for event in pygame.event.get():
 
             if pygame.mouse.get_pressed() == (1,0,0):
+                lst.lst = []
                 lst.generate_list()
                 lst.randomize_list()
-                lst.merge_sort()
+                lst.insertion_sort()
                 
 
             if pygame.mouse.get_pressed() == (0,0,1):
+                lst.lst = []
                 lst.generate_list()
                 lst.randomize_list()
                 lst.bubble_sort()
+
+            if pygame.mouse.get_pressed() == (0,1,0):
+                lst.lst = []
+                lst.generate_list()
+                lst.randomize_list()
+                lst.merge_sort()
 
             if event.type == pygame.KEYDOWN:
                 if str(pygame.key.name(event.key)).upper() == "BACKSPACE":
@@ -269,5 +289,5 @@ def main(win, elements, rng, width):
     
     pygame.quit()
 
-main(WIN, 100, 1000, 1000)
+main(WIN, 200, 1000, 1000)
 #Click start - Creates/draws sorted list - then randomizes the list visually - then sorts
