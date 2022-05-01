@@ -1,5 +1,4 @@
 import pygame
-from Sorting import Node, List
 
 class Menu():
     def __init__(self,game):
@@ -14,6 +13,8 @@ class Menu():
 
     def blit_screen(self):
         self.game.window.blit(self.game.display, (0,0))
+        for node in self.game.lst.lst:
+            node.draw(self.game.window)
         pygame.display.update()
         self.game.reset_keys()
 
@@ -67,7 +68,6 @@ class MainMenu(Menu):
         if self.game.START_KEY:
             if self.state == 'Sort':
                 self.game.curr_menu = SortingMenu(self.game)
-                
             elif self.state == 'Search':
                 pass
             elif self.state == 'Options':
@@ -82,6 +82,7 @@ class SortingMenu(Menu):
         self.insx, self.insy = 250, 50
         self.mergex, self.mergey = 400, 50
         self.cursor_rect.midtop = (self.bubx, self.buby + 20)
+        self.lst_printed = False
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
@@ -117,18 +118,24 @@ class SortingMenu(Menu):
             self.game.draw_text("Merge Sort", 20, self.mergex, self.mergey)
             self.draw_cursor()
             self.blit_screen()
+            if not self.lst_printed:
+                self.game.lst.generate_list()
+                self.game.lst.randomize_list()
+                self.lst_printed = True
+            pygame.display.update()
  
     def check_input(self):
         self.move_cursor()
         if self.game.BACK_KEY:
+            self.game.lst.lst = []
             self.game.curr_menu = self.game.main_menu
             self.run_display = False
         elif self.game.START_KEY:
             #initiate search
             if self.state == 'Bubble':
-                pass
+                self.game.lst.bubble_sort()
             elif self.state == 'Insert':
-                pass
+                self.game.lst.insertion_sort()
             elif self.state == 'Merge':
                 pass
             self.run_display = False

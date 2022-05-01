@@ -3,12 +3,6 @@ import pygame
 from random import randint
 
 
-# WIDTH = 1000
-# HEIGHT = 1000
-# WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-# pygame.display.set_caption("Sorting Algo")
-# display_surface = pygame.display.get_surface()
-# display_surface.blit(pygame.transform.flip(display_surface, False, True), dest=(0, 0))
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
@@ -55,13 +49,14 @@ def exit_loop():
             pygame.quit()
 
 class List():
-    def __init__(self, win, elements, rng, window_width):
+    def __init__(self, win,display, elements, rng, window_width):
         self.win = win
         self.elements = elements
         self.rng = rng
         self.width = window_width
         self.lst = []
         self.count = 0
+        self.disp = display
 
     def swap(self, index1, index2):
         self.lst[index1].change_x(index2), self.lst[index2].change_x(index1)
@@ -103,7 +98,8 @@ class List():
                 self.lst[j].red()
                 if self.lst[j].value > self.lst[j + 1].value:
                     self.swap(j, j+1)
-                draw(self.win, self.lst)
+                blit_screen(self.lst, self.win, self.disp)
+                #draw(self.win, self.lst)
                 #pygame.time.delay()
                 self.lst[j + 1].normal()
                 self.lst[j].normal()
@@ -220,7 +216,7 @@ class List():
             while self.lst[j -1].value > self.lst[j].value and j > 0:
                 self.swap(j, j-1)
                 #pygame.time.delay(1)
-                draw(self.win,self.lst)
+                draw(self.win,self.lst) 
                 j -= 1
             self.lst[j].normal()
         self.finished()
@@ -244,4 +240,10 @@ def draw(win, lst):
 
     #exit loop in draw function = easiest
     exit_loop()
+
+def blit_screen(lst, window, display):
+    window.blit(display, (0,0))
+    for node in lst:
+        node.draw(window)
+    pygame.display.update()
 
