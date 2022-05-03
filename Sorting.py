@@ -1,7 +1,5 @@
  
 
-from matplotlib.font_manager import json_load
-from numpy import partition
 import pygame
 from random import randint
 
@@ -49,11 +47,8 @@ class Node():
     def red(self):
         self.color = RED 
         
-def exit_loop():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-#fpsclock = pygame.time.Clock()
+        
+fpsclock = pygame.time.Clock()
 
 class List():
     def __init__(self,elements, rng, game, margin):
@@ -277,4 +272,10 @@ class List():
         pygame.display.update()
         #fpsclock.tick(FPS)
         
-        exit_loop()
+        self.exit_loop()
+
+    def exit_loop():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if
