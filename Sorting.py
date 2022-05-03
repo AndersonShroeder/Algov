@@ -1,26 +1,30 @@
+ 
 
+from matplotlib.font_manager import json_load
+from numpy import partition
 import pygame
 from random import randint
-
 
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 GREEN = (0,255,0)
 BLUE = (153,255,255)
-PURPLE = (204,153,255)
+PURPLE = (224,153,255)
 RED = (255, 153, 153)
 YELLOW = (255,255,153)
+GREY = (224, 224, 224)
 
-FPS = 60
+FPS = 240
 
 class Node():
-    def __init__(self, value, width, index):
+    def __init__(self, value, width, index, y, margin):
         self.value = value
-        self.color = WHITE
+        self.color = PURPLE
         self.index = index
-        self.x = width * self.index
-        self.y = 1000
+        self.margin = margin
+        self.x = width * self.index + margin
+        self.y = y
         self.width = width
         self.count = 0
 
@@ -29,13 +33,15 @@ class Node():
 
     def change_x(self, new_index):
         self.index = new_index
-        self.x = self.width * (new_index)
+        self.x = self.width * (new_index) + self.margin
 
     def draw(self, win):
-        pygame.draw.rect(win, self.color, (self.x, self.y-self.value, self.width, self.value))
+        pygame.draw.rect(win, GREY, (self.x, self.y-self.value, self.width, self.value))
+        pygame.draw.rect(win, self.color, (self.x + 1, self.y-self.value, self.width -2, self.value))
+        
 
     def normal(self):
-        self.color = WHITE
+        self.color = PURPLE
 
     def searching(self):
         self.color = GREEN
@@ -47,30 +53,32 @@ def exit_loop():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+#fpsclock = pygame.time.Clock()
 
 class List():
-    def __init__(self, win,display, elements, rng, window_width):
-        self.win = win
+    def __init__(self,elements, rng, game, margin):
+        self.win = game.window
         self.elements = elements
         self.rng = rng
-        self.width = window_width
+        self.margin = margin
+        self.width = game.DISPLAY_W - 2 * self.margin
+        self.height = game.DISPLAY_H
         self.lst = []
+        self.display = game.display
         self.count = 0
-        self.disp = display
 
     def swap(self, index1, index2):
         self.lst[index1].change_x(index2), self.lst[index2].change_x(index1)
         self.lst[index1], self.lst[index2] = self.lst[index2], self.lst[index1]
         
-
     #generate list function
     def generate_list(self):   
         jump = self.rng//self.elements
         w = self.width/self.elements
         for i in range(self.elements):
-            self.lst.append(Node(((i + 1)* jump), w, i))
+            self.lst.append(Node(((i + 1)* jump), w, i, self.height, self.margin))
         
-            draw(self.win, self.lst)
+            self.blit_screen()
 
             #Delay for visibility
             pygame.time.delay(2)
@@ -82,11 +90,43 @@ class List():
             rnd = randint(0, len(self.lst)-1)
             
             self.swap(i, rnd)
-            draw(self.win, self.lst)
+            self.blit_screen()
 
             #Delay for visibility
             pygame.time.delay(2)
 
+    def quicksort(self):
+        self.quick_sort(0, len(self.lst) - 1)
+
+    def quick_sort(self, left, right):
+        if left < right:
+            partition_pos = self.partition(left, right)
+            self.quick_sort(left, partition_pos -1)
+            self.quick_sort(partition_pos + 1, right)
+        
+    def partition(self, left, right):
+        i = left
+        j = right -1
+        pivot = self.lst[right].value
+
+        while i < j:
+            while i < right and self.lst[i].value < pivot:
+                self.lst[i].red()
+                i +=1
+                self.blit_screen()
+                self.lst[i-1].normal()
+            while j > left and self.lst[j].value >= pivot:
+                self.lst[j].red()
+                j -=1
+                self.blit_screen()
+                self.lst[j+1].normal()
+            if i < j:
+                self.swap(i, j)
+                self.blit_screen()
+        if self.lst[i].value > pivot:
+            self.swap(i, right)
+            self.blit_screen()
+        return i
 
 
     def bubble_sort(self):
@@ -98,8 +138,7 @@ class List():
                 self.lst[j].red()
                 if self.lst[j].value > self.lst[j + 1].value:
                     self.swap(j, j+1)
-                blit_screen(self.lst, self.win, self.disp)
-                #draw(self.win, self.lst)
+                self.blit_screen()
                 #pygame.time.delay()
                 self.lst[j + 1].normal()
                 self.lst[j].normal()
@@ -132,8 +171,8 @@ class List():
 
             #Check each node at both side = make red
             left[left_pointer].red(), right[right_ponter].red()
-            draw(self.win, self.lst) 
-            pygame.time.delay(5)
+            self.blit_screen()
+            
 
             #Update Min if less than left pointer value index
             if left[left_pointer].index < min:
@@ -153,13 +192,13 @@ class List():
 
             #Make node normal
             left[left_pointer - 1].normal(), right[right_ponter - 1].normal()
-            draw(self.win, self.lst)
+            self.blit_screen()
 
 
         while left_pointer < len(left):
             #Check
             left[left_pointer].red()
-            draw(self.win, self.lst) 
+            self.blit_screen()
 
             if left[left_pointer].index < min:
                 min = left[left_pointer].index
@@ -173,7 +212,7 @@ class List():
 
         while right_ponter < len(right):
             right[right_ponter].red()
-            draw(self.win, self.lst) 
+            self.blit_screen()
 
             if right[right_ponter].index < min:
                 min = right[right_ponter].index
@@ -194,13 +233,12 @@ class List():
             self.swap(node_index, swap_index)
             max += index
             
-        draw(self.win, self.lst)
+        self.blit_screen()
 
         #draw sequence of sorted subarray
         for node in result:
             node.red()
-            draw(self.win, self.lst)
-            pygame.time.delay(5)
+            self.blit_screen()
             node.normal()
         
 
@@ -215,8 +253,7 @@ class List():
             self.lst[j].red()
             while self.lst[j -1].value > self.lst[j].value and j > 0:
                 self.swap(j, j-1)
-                #pygame.time.delay(1)
-                draw(self.win,self.lst) 
+                self.blit_screen()
                 j -= 1
             self.lst[j].normal()
         self.finished()
@@ -228,22 +265,16 @@ class List():
         for i in self.lst:
             i.red()
             
-            draw(self.win, self.lst)
+            self.blit_screen()
             pygame.time.delay(2)
             i.searching()
 
-
-def draw(win, lst):
-    for node in lst:
-        node.draw(win)
-    pygame.display.update()
-
-    #exit loop in draw function = easiest
-    exit_loop()
-
-def blit_screen(lst, window, display):
-    window.blit(display, (0,0))
-    for node in lst:
-        node.draw(window)
-    pygame.display.update()
-
+    def blit_screen(self):
+        self.win.blit(self.display, (0,0))
+        for node in self.lst:
+            node.draw(self.win)
+        
+        pygame.display.update()
+        #fpsclock.tick(FPS)
+        
+        exit_loop()
