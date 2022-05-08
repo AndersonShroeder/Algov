@@ -13,7 +13,7 @@ RED = (255, 153, 153)
 YELLOW = (255,255,153)
 GREY = (224, 224, 224)
 
-FPS = 240
+#FPS = 240
 
 class Node():
     def __init__(self, value, width, index, y, margin):
@@ -48,10 +48,11 @@ class Node():
         self.color = RED 
         
         
-fpsclock = pygame.time.Clock()
+#fpsclock = pygame.time.Clock()
 
 class List():
     def __init__(self,elements, rng, game, margin):
+        self.game = game
         self.win = game.window
         self.elements = elements
         self.rng = rng
@@ -92,6 +93,7 @@ class List():
 
     def quicksort(self):
         self.quick_sort(0, len(self.lst) - 1)
+        self.finished()
 
     def quick_sort(self, left, right):
         if left < right:
@@ -103,7 +105,6 @@ class List():
         i = left
         j = right -1
         pivot = self.lst[right].value
-
         while i < j:
             while i < right and self.lst[i].value < pivot:
                 self.lst[i].red()
@@ -270,12 +271,12 @@ class List():
             node.draw(self.win)
         
         pygame.display.update()
-        #fpsclock.tick(FPS)
         
         self.exit_loop()
 
-    def exit_loop():
+        pygame.time.delay(2)
+        
+    def exit_loop(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            if

@@ -1,7 +1,8 @@
 import pygame
+import Search
 
 y_offset = 40 #distance of options from top of screen
-x_offset = 100 # distance of options from eachother/edge of screen
+x_offset = 50# distance of options from eachother/edge of screen
 cursor_offset = 30
 banner_y_offset = 80
 FONT_SIZE = 20
@@ -76,7 +77,8 @@ class MainMenu(Menu):
             if self.state == 'Sort':
                 self.game.curr_menu = SortingMenu(self.game)
             elif self.state == 'Search':
-                self.game.search
+               #self.game.curr_menu = SearchMenu(self.game)
+               Search1.main( self.game.DISPLAY_W * 1//10, self.game.DISPLAY_H * 1//10, self.game.DISPLAY_W * 9//10 , self.game.DISPLAY_H * 9//10, 48, self.game.window)
             elif self.state == 'Options':
                 pass
             self.run_display = False
@@ -87,10 +89,12 @@ class SortingMenu(Menu):
         self.state = 'Bubble'
         self.bubw, self.insw = self.game.text_width("Bubble Sort", FONT_SIZE), self.game.text_width("Insertion Sort", FONT_SIZE)
         self.mergew, self.neww =self.game.text_width("Merge Sort", FONT_SIZE), self.game.text_width("Generate New List", FONT_SIZE)
-        self.bubx, self.buby = x_offset, y_offset #menu buttons across top sep x pixels
+        self.quickw = self.game.text_width("Quick Sort", FONT_SIZE)
+        self.bubx, self.buby = x_offset+50, y_offset #menu buttons across top sep x pixels
         self.insx, self.insy = self.bubw//2 + self.bubx + self.insw//2 + x_offset, y_offset
         self.mergex, self.mergey = self.insx + self.insw//2 + self.mergew//2 + x_offset, y_offset
-        self.newx, self.newy = self.mergex + self.mergew//2 + self.neww//2 + x_offset, y_offset
+        self.quickx, self.quicky  = self.mergex + self.mergew//2 + self.quickw//2 + x_offset, y_offset
+        self.newx, self.newy = self.quickx + self.quickw//2 + self.neww//2 + x_offset, y_offset
         self.banner = pygame.Rect(0, 0, game.DISPLAY_W, banner_y_offset)
         self.cursor_rect.midtop = (self.bubx, self.buby + cursor_offset)
         self.lst_printed = False
@@ -108,6 +112,9 @@ class SortingMenu(Menu):
                 self.cursor_rect.midtop = (self.bubx, self.buby + cursor_offset)
                 self.state = 'Bubble'
             elif self.state == 'New':
+                self.cursor_rect.midtop = (self.quickx, self.quicky + cursor_offset)
+                self.state = 'Quick'
+            elif self.state == 'Quick':
                 self.cursor_rect.midtop = (self.mergex, self.mergey + cursor_offset)
                 self.state = 'Merge'
         elif self.game.UP_KEY:
@@ -118,6 +125,9 @@ class SortingMenu(Menu):
                 self.cursor_rect.midtop = (self.mergex, self.mergey + cursor_offset)
                 self.state = 'Merge'
             elif self.state == 'Merge':
+                self.cursor_rect.midtop = (self.quickx, self.quicky + cursor_offset)
+                self.state = 'Quick'
+            elif self.state == 'Quick':
                 self.cursor_rect.midtop = (self.newx, self.newy + cursor_offset)
                 self.state = 'New'
             elif self.state == 'New':
@@ -134,6 +144,7 @@ class SortingMenu(Menu):
             self.game.draw_text("Bubble Sort", FONT_SIZE, self.bubx, self.buby)
             self.game.draw_text("Insertion Sort", FONT_SIZE, self.insx, self.insy)
             self.game.draw_text("Merge Sort", FONT_SIZE, self.mergex, self.mergey)
+            self.game.draw_text("Quick Sort", FONT_SIZE, self.quickx, self.quicky)
             self.game.draw_text("Generate New List", FONT_SIZE, self.newx, self.newy)
             self.draw_cursor()
             self.blit_screen()
@@ -157,6 +168,8 @@ class SortingMenu(Menu):
                 self.game.lst.insertion_sort()
             elif self.state == 'Merge':
                 self.game.lst.merge_sort()
+            elif self.state == 'Quick':
+                self.game.lst.quicksort()
             elif self.state == 'New':
                 self.game.lst.lst = []
                 self.game.lst.generate_list()
@@ -164,7 +177,9 @@ class SortingMenu(Menu):
             self.run_display = False
 
 class SearchMenu(Menu):
-    pass
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = 'A*'
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)

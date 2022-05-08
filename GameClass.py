@@ -12,14 +12,15 @@ class Game():
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
         self.infoobject = pygame.display.Info()
-        self.DISPLAY_W, self.DISPLAY_H = self.infoobject.current_w, self.infoobject.current_h
+        self.DISPLAY_W, self.DISPLAY_H = (self.infoobject.current_w)*2//4, (self.infoobject.current_h)*3//4
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
         self.font_name = pygame.font.get_default_font()
         self.WHITE, self.GREY, self.BLUE = (255, 255,255), (224, 224, 224), (0,102,102)
         self.main_menu = MainMenu(self)
         self.curr_menu = self.main_menu
-        self.lst = List(200, self.DISPLAY_H-100, self, 100)
+        self.lst = List(100, self.DISPLAY_H*9/10, self, self.DISPLAY_W * 1/10)
+        self.grid = None
         self.playing = False
         self.search = None
 
