@@ -125,6 +125,7 @@ class Grid:
         self.blockSize = self.delta_x//number_blocks
         self.s_e = False
         self.grid_list = []
+        self.div_factor = 0
         #self.grid_list = [
             #[Node(x+start_x, y+start_y, self.blockSize) 
             #for x in range(0, self.delta_x, self.blockSize)] 

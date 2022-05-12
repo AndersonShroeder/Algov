@@ -1,5 +1,5 @@
 import pygame
-import Search
+import Search1
 
 y_offset = 40 #distance of options from top of screen
 x_offset = 50# distance of options from eachother/edge of screen
@@ -23,6 +23,15 @@ class Menu():
         self.game.window.blit(self.game.display, (0,0))
         for node in self.game.lst.lst:
             node.draw(self.game.window)
+        pygame.display.update()
+        self.game.reset_keys()
+
+    def blit_screen_grid(self):
+        self.game.window.blit(self.game.display, (0,0))
+        for row in self.game.grid.grid_list:
+            for node in row:
+                node.draw(self.game.window)
+
         pygame.display.update()
         self.game.reset_keys()
 
@@ -77,8 +86,7 @@ class MainMenu(Menu):
             if self.state == 'Sort':
                 self.game.curr_menu = SortingMenu(self.game)
             elif self.state == 'Search':
-               #self.game.curr_menu = SearchMenu(self.game)
-               Search1.main( self.game.DISPLAY_W * 1//10, self.game.DISPLAY_H * 1//10, self.game.DISPLAY_W * 9//10 , self.game.DISPLAY_H * 9//10, 48, self.game.window)
+                self.game.curr_menu = SearchMenu(self.game)
             elif self.state == 'Options':
                 pass
             self.run_display = False
@@ -180,6 +188,49 @@ class SearchMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
         self.state = 'A*'
+        self.grid_printed = False
+        
+
+    def move_cursor(self):
+        if self.game.DOWN_KEY:
+            pass
+        elif self.game.UP_KEY:
+            pass
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.display.fill(self.game.GREY)
+            #self.draw_cursor()
+            self.blit_screen_grid()
+            if not self.grid_printed:
+                self.game.grid.generate_grid()
+                self.grid_printed = True
+            pygame.display.update()
+ 
+    def check_input(self):
+        self.move_cursor()
+        if self.game.BACK_KEY:
+            self.game.grid.grid_list = []
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
+
+
+        #left click barrier creation function
+        elif pygame.mouse.get_pressed() == (1,0,0):
+            self.game.grid.click().make_barrier()
+
+        #right click barrier remove function
+        elif pygame.mouse.get_pressed() == (0,0,1):
+            self.game.grid.click().make_clear()
+
+
+        elif self.game.START_KEY:
+            self.game.grid.generate_start_end()
+            self.game.grid.astar_search()
+            self.run_display = False
+
 class OptionsMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
