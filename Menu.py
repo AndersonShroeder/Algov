@@ -1,5 +1,5 @@
 import pygame
-import Search1
+import Search
 
 y_offset = 40 #distance of options from top of screen
 x_offset = 50# distance of options from eachother/edge of screen
@@ -187,7 +187,21 @@ class SortingMenu(Menu):
 class SearchMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
+        self.game.grid = Search.Grid(
+                                    self.game.DISPLAY_W * 1//20, 
+                                    (self.game.DISPLAY_H - banner_y_offset) * 1//20 + banner_y_offset, 
+                                    self.game.DISPLAY_W * 19//20, 
+                                    (self.game.DISPLAY_H - banner_y_offset) * 19//20 + banner_y_offset, 
+                                    self.game, 50
+                                    )
         self.state = 'A*'
+        self.astarw = self.game.text_width("A* Search", FONT_SIZE)
+        self.neww = self.game.text_width("Generate New Grid", FONT_SIZE)
+        self.astarx, self.astary = x_offset+50, y_offset #menu buttons across top sep x pixels
+        self.newx, self.newy = self.astarw//2 + self.astarx + self.neww//2 + x_offset, y_offset
+        self.banner = pygame.Rect(0, 0, game.DISPLAY_W, banner_y_offset)
+        self.cursor_rect.midtop = (self.astarx, self.astary + cursor_offset)
+        self.lst_printed = False
         self.grid_printed = False
         
 
@@ -196,16 +210,21 @@ class SearchMenu(Menu):
             pass
         elif self.game.UP_KEY:
             pass
+
     def display_menu(self):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
             self.check_input()
             self.game.display.fill(self.game.GREY)
-            #self.draw_cursor()
+            self.game.draw_rect(self.banner)
+            self.game.draw_text("A* Search", FONT_SIZE, self.astarx, self.astary)
+            self.game.draw_text("Generate New Grid", FONT_SIZE, self.newx, self.newy)
+            self.draw_cursor()
             self.blit_screen_grid()
             if not self.grid_printed:
                 self.game.grid.generate_grid()
+                self.game.grid.generate_start_end()
                 self.grid_printed = True
             pygame.display.update()
  
@@ -227,8 +246,8 @@ class SearchMenu(Menu):
 
 
         elif self.game.START_KEY:
-            self.game.grid.generate_start_end()
-            self.game.grid.astar_search()
+            if self.state == "A*":
+                self.game.grid.astar_search()
             self.run_display = False
 
 class OptionsMenu(Menu):

@@ -1,8 +1,8 @@
 import pygame
 from Menu import MainMenu
-import pygame
 from Sorting import List
-from Search1 import Grid
+from Search import Grid
+
 
 #Implement Buttons?
 x_box = None
@@ -22,7 +22,7 @@ class Game():
         self.main_menu = MainMenu(self)
         self.curr_menu = self.main_menu
         self.lst = List(100, self.DISPLAY_H*9/10, self, self.DISPLAY_W * 1/10)
-        self.grid = Grid(self.DISPLAY_W * 1//10, self.DISPLAY_H * 1//10, self.DISPLAY_W * 9//10 , self.DISPLAY_H * 9//10, self, 48)
+        self.grid = None
         self.playing = False
         self.search = None
 
@@ -37,9 +37,9 @@ class Game():
                     self.START_KEY = True
                 if event.key == pygame.K_BACKSPACE:
                     self.BACK_KEY = True
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                     self.DOWN_KEY = True
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_UP or event.key == pygame.K_w:
                     self.UP_KEY = True
 
             

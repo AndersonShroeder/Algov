@@ -1,6 +1,3 @@
-#G cost - distance from start node
-#H (heuristic) cost - distance from end node
-#F cost - G + H
 import pygame
 import random
 from queue import PriorityQueue
@@ -8,31 +5,27 @@ from queue import PriorityQueue
 
 WIDTH = 1000
 HEIGHT = 1000
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("OCR")
 
 #Static colors
 WHITE = (255,255,255)
 BLACK = (0,0,0)
-GREEN = (153,255,153)
+GREEN = (0,255,0)
 BLUE = (153,255,255)
-PURPLE = (204,153,255)
+PURPLE = (224,153,255)
 RED = (255, 153, 153)
 YELLOW = (255,255,153)
-
+GREY = (224, 224, 224)
 
 FPS = 60
 
-
-#Node class
 class Node:
-    def __init__(self, x, y, a_x, a_y, width, color = WHITE):
+    def __init__(self, x, y, a_x, a_y, width, color = GREY):
             self.adjusted_x = a_x
             self.adjusted_y = a_y
             self.x = x
             self.y = y
-            self.row = int(x/width)
-            self.col = int(y/width)
+            self.row = int(y//width)
+            self.col = int(x//width)
             self.cord = (self.col, self.row)
             self.color = color
             self.width = width
@@ -84,24 +77,25 @@ class Node:
         self.color = PURPLE
 
     def make_clear(self):
-        self.color = WHITE
+        self.color = GREY
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.adjusted_x, self.adjusted_y, self.width, self.width))
+        pygame.draw.rect(win, BLACK, (self.adjusted_x, self.adjusted_y, self.width, self.width), 1)
 
     def update_neighbors(self, grid):
         self.neighbors = []
         #add left and right nodes
         for i in range(-1, 2):
-            if (self.col + i) <= len(grid.grid_list) - 1 and (self.col + i) >=0:
-                if not grid.grid_list[self.col + i][self.row].is_barrier():
-                    self.neighbors.append(grid.grid_list[self.col + i][self.row])
+            if (self.col + i) <= len(grid.grid_list[0]) - 1 and (self.col + i) >=0:
+                if not grid.grid_list[self.row][self.col + i].is_barrier():
+                    self.neighbors.append(grid.grid_list[self.row][self.col + i])
 
         #add top and bottom nodes
         for j in range(-1, 2):
             if (self.row + j) <= len(grid.grid_list) -1 and (self.row + j) >= 0:
-                if not grid.grid_list[self.col][self.row + j].is_barrier():
-                    self.neighbors.append(grid.grid_list[self.col][self.row + j])
+                if not grid.grid_list[self.row + j][self.col].is_barrier():
+                    self.neighbors.append(grid.grid_list[self.row + j][self.col])
 
         #remove instances of self
         for index, node in enumerate(self.neighbors):
@@ -113,44 +107,54 @@ class Node:
 
 #Grid class to take care of drawing and updating grid
 class Grid:
-    def __init__(self, start_x, start_y, end_x, end_y, win, number_blocks):
+    def __init__(self, start_x, start_y, end_x, end_y, game, number_blocks):
         self.start_x = start_x
         self.start_y = start_y
+        self.end_x = end_x
+        self.end_y = end_y
         self.delta_x = end_x - start_x
         self.delta_y = end_y - start_y
         self.start = None
         self.end = None
-        self.win = win
+        self.win = game.window
+        self.display = game.display
         self.number_blocks = number_blocks
         self.blockSize = self.delta_x//number_blocks
+        self.col_max = self.delta_y // self.blockSize
         self.s_e = False
         self.grid_list = []
         self.div_factor = 0
-        #self.grid_list = [
-            #[Node(x+start_x, y+start_y, self.blockSize) 
-            #for x in range(0, self.delta_x, self.blockSize)] 
-            #for y in range(0, self.delta_y, self.blockSize)
-        #]
+    
+    def generate_grid(self):
+        self.s_e = False
         for y in range(0, self.delta_y, self.blockSize):
             self.grid_list.append([])
             for x in range(0, self.delta_x, self.blockSize):
-                box = Node(x, y, x+start_x, y+start_y, self.blockSize) 
+                box = Node(x, y, x+self.start_x, y+self.start_y, self.blockSize)
                 self.grid_list[y//self.blockSize].append(box)
+                #self.blit_screen()
 
         for row in self.grid_list:
             for box in row:
                 box.update_neighbors(self)
 
-    def draw(self):
+        self.div_factor = self.grid_list[0][0].width
+
+    def blit_screen(self):
+        self.win.blit(self.display, (0,0))
         for row in self.grid_list:
-            for box in row:
-                box.draw(self.win)
+            for node in row:
+                node.draw(self.win)
 
-        for y in range(0, self.delta_y, self.blockSize):
-            for x in range(0, self.delta_x, self.blockSize):
-                rect = pygame.Rect(x+self.start_x, y+self.start_y, self.blockSize, self.blockSize) #create and draw grid
-                pygame.draw.rect(self.win, BLACK, rect, 1)
+        pygame.display.update()
+        
+        self.exit_loop()
 
+    def exit_loop(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+ 
 
     def clear_all(self):
         for row in self.grid_list:
@@ -161,8 +165,8 @@ class Grid:
 
     def generate_start_end(self):
         if self.s_e == False:
-            s_y, s_x = random.randint(0, self.number_blocks-1), random.randint(0, self.number_blocks-1)
-            e_y, e_x = random.randint(0, self.number_blocks-1), random.randint(0, self.number_blocks-1)
+            s_y, s_x = random.randint(0, self.col_max-2), random.randint(0, self.number_blocks-2)
+            e_y, e_x = random.randint(0, self.col_max-2), random.randint(0, self.number_blocks-2)
             if s_y != e_y and s_x != e_x:
                 self.grid_list[s_y][s_x].make_start()
                 self.start = self.grid_list[s_y][s_x]
@@ -176,7 +180,7 @@ class Grid:
         while current in came_from:
             current = came_from[current]
             current.make_path()
-            draw(self.win, self)
+            self.blit_screen()
 
     def astar_search(self):
         count = 0
@@ -186,7 +190,7 @@ class Grid:
         g_score = {node: float("inf") for row in self.grid_list for node in row}
         g_score[self.start] = 0
         f_score = {node: float("inf") for row in self.grid_list for node in row}
-        f_score[self.start] = h(self.start.get_pos(), self.end.get_pos())
+        f_score[self.start] = self.h(self.start.get_pos(), self.end.get_pos())
 
         open_set_hash = {self.start}
 
@@ -213,75 +217,68 @@ class Grid:
                 if temp_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = temp_g_score
-                    f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), self.end.get_pos())
+                    f_score[neighbor] = temp_g_score + self.h(neighbor.get_pos(), self.end.get_pos())
                     if neighbor not in open_set_hash:
                         count +=1
                         open_set.put((f_score[neighbor], count, neighbor))
                         open_set_hash.add(neighbor)
                         neighbor.make_open()
             
-            draw(self.win, self)
+            self.blit_screen()
             
             if current != self.start:
                 current.make_closed()
         return None
 
-def h(p1, p2):
-    y1, x1 = p1
-    y2, x2 = p2
-    return abs(y2 - y1) + abs(x2 - x1)
+    def h(self, p1, p2):
+        y1, x1 = p1
+        y2, x2 = p2
+        return abs(y2 - y1) + abs(x2 - x1)
 
-def draw(win, grid):
-    win.fill(BLACK)
-    grid.draw()
-    pygame.display.update()
+    def dijkstra(self):
+        pass
 
+    def click(self):
+        x_box, y_box = pygame.mouse.get_pos()
+        if self.start_x <= x_box and x_box <= self.end_x and self.start_y <= y_box and y_box  <= self.end_y:
+            x, y = int((x_box-self.start_x)/self.div_factor), int((y_box-self.start_y)/self.div_factor)
+            return self.grid_list[y][x]
+        #out of bounds left
+        elif self.start_x > x_box and self.start_y <= y_box and y_box  <= self.end_y:
+            x, y = 0, int((y_box-self.start_y)/self.div_factor)
+            return self.grid_list[y][x]
 
+        #out of bounds right
+        elif x_box > self.end_x and self.start_y <= y_box and y_box <= self.end_y:
+            x, y = len(self.grid_list[0]) - 1, int((y_box-self.start_y)/self.div_factor)
+            return self.grid_list[y][x]
 
+        #out of bounds top
+        elif self.start_x <= x_box and x_box <= self.end_x and self.start_y > y_box:
+            x, y = int((x_box-self.start_x)/self.div_factor), 0
+            return self.grid_list[y][x]
 
-def main(start_x, start_y, end_x, end_y, number_blocks, win):
-    run = True
-    clock = pygame.time.Clock()
-    grid = Grid(start_x, start_y, end_x, end_y, win, number_blocks)
-    div_factor = grid.grid_list[0][0].width
+        #out of bounds bottom
+        elif self.start_x <= x_box and x_box <= self.end_x and y_box  > self.end_y:
+            x, y = int((x_box-self.start_x)/self.div_factor), len(self.grid_list) - 1
+            return self.grid_list[y][x]
 
-    while run:
-        draw(win, grid)
-        clock.tick(FPS)
-        for event in pygame.event.get():
+        #top left corner
+        elif self.start_x > x_box and self.start_y > y_box:
+            x, y = 0, 0
+            return self.grid_list[y][x]
 
+        #top right corner
+        elif x_box > self.end_x and  y_box < self.start_y:
+            x, y = len(self.grid_list[0]) - 1, 0
+            return self.grid_list[y][x]
 
-            #left click barrier creation function
-            if pygame.mouse.get_pressed() == (1,0,0):
-                x_box, y_box = pygame.mouse.get_pos()
-                if start_x <= x_box and x_box <= end_x and start_y <= y_box and y_box  <= end_y:
-                    x, y = int((x_box-start_x)/div_factor), int((y_box-start_y)/div_factor)
-                    grid.grid_list[y][x].make_barrier()
+        #bottom left corner
+        elif x_box < self.start_x and  y_box > self.end_y:
+            x, y = 0, len(self.grid_list) - 1
+            return self.grid_list[y][x]
 
-            #right click barrier remove function
-            if pygame.mouse.get_pressed() == (0,0,1):
-                x_box, y_box = pygame.mouse.get_pos()
-                if start_x <= x_box and x_box <= end_x and start_y <= y_box and y_box  <= end_y:
-                    x, y = int((x_box-start_x)/div_factor), int((y_box-start_y)/div_factor)
-                    grid.grid_list[y][x].make_clear()
-
-
-            if event.type == pygame.KEYDOWN:
-                if str(pygame.key.name(event.key)).upper() == "BACKSPACE":
-                    #grid.clear_all()
-
-                    grid.astar_search()
-
-
-                if str(pygame.key.name(event.key)).upper() == "RETURN":
-                    grid.generate_start_end()
-                    
-
-            if event.type == pygame.QUIT:
-                run = False
-
-    
-    pygame.quit()
-
-
-main( 20, 20, 980, 980, 48, WIN)
+        #bottom right corner
+        elif x_box > self.end_x and  y_box > self.end_y:
+            x, y = len(self.grid_list[0]) - 1, len(self.grid_list) - 1
+            return self.grid_list[y][x]
