@@ -9,11 +9,11 @@ HEIGHT = 1000
 #Static colors
 WHITE = (255,255,255)
 BLACK = (0,0,0)
-GREEN = (0,255,0)
-BLUE = (153,255,255)
+GREEN = (0,204,102)
+BLUE = (0,102,102)
 PURPLE = (224,153,255)
 RED = (255, 153, 153)
-YELLOW = (255,255,153)
+YELLOW = (255,255,0)
 GREY = (224, 224, 224)
 
 FPS = 60
@@ -62,13 +62,13 @@ class Node:
         self.color = RED
 
     def make_open(self):
-        self.color = GREEN
+        self.color = BLUE
 
     def make_barrier(self):
         self.color = BLACK
 
     def make_start(self):
-        self.color = BLUE
+        self.color = GREEN
 
     def make_target(self):
         self.color = YELLOW

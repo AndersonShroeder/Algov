@@ -41,8 +41,8 @@ class MainMenu(Menu):
         self.state = "Sort"
         self.sortingx, self.sortingy = self.mid_w, self.mid_h + 30
         self.searchx, self.searchy = self.mid_w, self.mid_h + 50
-        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 70
         self.cursor_rect.midtop = (self.sortingx + self.offset, self.sortingy)
+        self.banner = pygame.Rect(game.DISPLAY_W * 3/10, game.DISPLAY_H * 3/10, game.DISPLAY_W * 4/10,  game.DISPLAY_H * 4/10)
 
     def display_menu(self):
         self.run_display = True
@@ -50,10 +50,10 @@ class MainMenu(Menu):
             self.game.check_events() #set flags to allow to move cursor
             self.check_input()
             self.game.display.fill(self.game.GREY)
+            self.game.draw_rect(self.banner)
             self.game.draw_text("Main Menu", 20, self.game.DISPLAY_W/2, self.game.DISPLAY_H / 2 - 20) #Main menu title is at the center slighty above options
             self.game.draw_text("Sorting Algorithms", 20, self.sortingx, self.sortingy)
             self.game.draw_text("Search Algorithms", 20, self.searchx, self.searchy)
-            self.game.draw_text("Options", 20, self.optionsx, self.optionsy)
             self.draw_cursor()
             self.blit_screen()
 
@@ -64,21 +64,16 @@ class MainMenu(Menu):
                 self.cursor_rect.midtop = (self.searchx + self.offset, self.searchy)
                 self.state = 'Search'
             elif self.state == 'Search':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
-            elif self.state == 'Options':
                 self.cursor_rect.midtop = (self.sortingx + self.offset, self.sortingy)
                 self.state = 'Sort'
         elif self.game.UP_KEY:
             if self.state == 'Sort':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
+                self.cursor_rect.midtop = (self.searchx + self.offset, self.searchy)
+                self.state = 'Search'
             elif self.state == 'Search':
                 self.cursor_rect.midtop = (self.sortingx + self.offset, self.sortingy)
                 self.state = 'Sort'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.searchx + self.offset, self.searchy)
-                self.state = 'Search'
+
 
     def check_input(self):
         self.move_cursor()
@@ -207,10 +202,20 @@ class SearchMenu(Menu):
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
-            pass
+            if self.state == 'A*':
+                self.cursor_rect.midtop = (self.newx, self.newy + cursor_offset)
+                self.state = 'New'
+            elif self.state == 'New':
+                self.cursor_rect.midtop = (self.astarx, self.astary + cursor_offset)
+                self.state = 'A*'
         elif self.game.UP_KEY:
-            pass
-
+            if self.state == 'A*':
+                self.cursor_rect.midtop = (self.newx, self.newy + cursor_offset)
+                self.state = 'New'
+            elif self.state == 'New':
+                self.cursor_rect.midtop = (self.astarx, self.astary + cursor_offset)
+                self.state = 'A*'
+            
     def display_menu(self):
         self.run_display = True
         while self.run_display:
@@ -249,10 +254,3 @@ class SearchMenu(Menu):
             if self.state == "A*":
                 self.game.grid.astar_search()
             self.run_display = False
-
-class OptionsMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = 'Volume'
-        self.volx, self.voly = self.mid_w, self.mid_h + 20
-        self.con
