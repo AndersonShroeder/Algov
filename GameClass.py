@@ -17,6 +17,7 @@ class Game():
         self.DISPLAY_W, self.DISPLAY_H = (self.infoobject.current_w)*2//4, (self.infoobject.current_h)*3//4
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+        pygame.display.set_caption("Algorithm Visualizer")
         self.font_name = pygame.font.get_default_font()
         self.WHITE, self.GREY, self.BLUE = (255, 255,255), (224, 224, 224), (0,102,102)
         self.main_menu = MainMenu(self)
