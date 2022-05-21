@@ -253,4 +253,8 @@ class SearchMenu(Menu):
         elif self.game.START_KEY:
             if self.state == "A*":
                 self.game.grid.astar_search()
+            if self.state == 'New':
+                self.game.grid.grid_list = []
+                self.game.grid.generate_grid()
+                self.game.grid.generate_start_end()
             self.run_display = False

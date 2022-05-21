@@ -42,7 +42,7 @@ class Game():
                 if event.key == pygame.K_UP or event.key == pygame.K_w:
                     self.UP_KEY = True
 
-            
+             
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
 
@@ -51,7 +51,7 @@ class Game():
         text_surface = font.render(text, True, self.WHITE)
         width = font.size(text)
         return width[0]
-        
+          
 
     def draw_text(self, text, size, x, y):
         font = pygame.font.Font(self.font_name, size)
